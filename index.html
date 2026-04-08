@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翟士源 - 个人简历与交互作品集</title>
+    <meta name="description" content="翟士源的个人网站 - 软件工程 / AI赋能 / 交互作品集">
+    <style>
+        :root {
+            --bg-color: transparent; 
+            /* 优化4：底层卡片极低透明度，凸显Z轴景深 */
+            --surface-color: rgba(18, 18, 30, 0.2); 
+            --surface-modal: rgba(18, 18, 30, 0.7); 
+            
+            --text-main: #ffffff;
+            --text-secondary: #e2e8f0;
+            --text-muted: #94a3b8;
+            --primary-color: #818cf8;
+            --primary-light: rgba(99, 102, 241, 0.2);
+            --primary-hover: #6366f1;
+            
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --glass-border-heavy: 1px solid rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            --glass-shadow-heavy: 0 25px 50px -12px rgba(0,0,0,0.6);
+            --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            
+            /* 优化6：引入果冻物理弹簧曲线 */
+            --spring-easing: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --transition-fast: 150ms var(--spring-easing);
+            --transition-normal: 400ms var(--spring-easing);
+            
+            --radius-md: 0.75rem;
+            --radius-lg: 1.25rem;
+            --font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            /* 优化3：引入理性的等宽字体栈 */
+            --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+        }
+
+        *:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 3px; border-radius: 4px; }
+        @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; } }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+        body { 
+            font-family: var(--font-family); background-color: #05050A; color: var(--text-main); 
+            line-height: 1.6; -webkit-font-smoothing: antialiased; 
+            overflow-x: hidden;
+        }
+        body.locked { overflow: hidden; height: 100vh; }
+
+        /* 优化3：强制等宽字体类 */
+        .font-mono { font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.02em; }
+
+        /* ================= 进场动画特效 ================= */
+        .splash-screen {
+            position: fixed; inset: 0; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle at center, transparent 0%, rgba(5,5,10,0.9) 100%);
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .splash-screen.hidden { opacity: 0; transform: scale(1.1); pointer-events: none; }
+        .splash-content { text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .sys-text-container { display: flex; align-items: center; margin-bottom: 1.5rem; height: 20px;}
+        .sys-text { font-family: var(--font-mono); color: #10b981; letter-spacing: 0.2em; font-size: 0.85rem; text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+        
+        /* 优化9：真实的终端光标逻辑，去掉无限 blinking，由 JS 控制 */
+        .typing-cursor { display: inline-block; width: 8px; height: 1.2em; background: #10b981; margin-left: 4px; opacity: 1; }
+        .typing-cursor.blinking { animation: blink 1s step-end infinite; }
+        
+        .splash-title { font-size: 5rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.04em; text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .splash-subtitle { font-family: var(--font-mono); color: #B19EEF; letter-spacing: 0.4em; font-size: 0.9rem; margin-bottom: 3.5rem; text-shadow: 0 0 15px rgba(177, 158, 239, 0.5); }
+
+        .enter-btn {
+            background: rgba(10, 10, 15, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2); color: #fff;
+            padding: 1.2rem 3.5rem; font-size: 1rem; font-weight: 700; letter-spacing: 0.3em;
+            cursor: pointer; position: relative; overflow: hidden; border-radius: 99px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 0 0 rgba(129, 140, 248, 0);
+            transition: all 0.4s var(--spring-easing);
+        }
+        .enter-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 159, 252, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+        .enter-btn:hover { border-color: #FF9FFC; color: #FF9FFC; box-shadow: 0 15px 40px rgba(255, 159, 252, 0.3), inset 0 0 20px rgba(255, 159, 252, 0.2); transform: translateY(-5px) scale(1.02); }
+        .enter-btn:hover::before { left: 100%; }
+        .enter-btn:active { transform: translateY(0) scale(0.98); }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* App 内容区初始隐藏及转场 */
+        .app-wrapper {
+            opacity: 0; transform: scale(0.95) translateY(20px); filter: blur(12px);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+        .app-wrapper.ready { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); pointer-events: auto; }
+
+        /* ================= Liquid Ether 原生流体背景 ================= */
+        .liquid-ether-bg {
+            position: fixed; inset: 0; z-index: -1;
+            overflow: hidden; pointer-events: none;
+            filter: blur(30px); background: #05050A;
+            transform-origin: center center;
+            will-change: transform;
+        }
+        .ether-blob {
+            position: absolute; border-radius: 50%; opacity: 0.15; 
+            will-change: transform; mix-blend-mode: screen;
+            animation: ether-float 15s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .blob-1 { background: #5227FF; width: 25vw; height: 25vw; top: -5%; left: -5%; }
+        .blob-2 { background: #FF9FFC; width: 20vw; height: 20vw; bottom: -5%; right: -5%; animation-delay: -3s; animation-duration: 18s; }
+        .blob-3 { background: #B19EEF; width: 22vw; height: 22vw; top: 40%; left: 30%; animation-delay: -7s; animation-duration: 20s; opacity: 0.1; }
+        
+        .blob-cursor {
+            background: radial-gradient(circle, #FF9FFC, #5227FF); 
+            width: 120px; height: 120px; 
+            top: 0; left: 0; transform: translate3d(-50%, -50%, 0);
+            animation: none; opacity: 0.6; border-radius: 50%;
+            position: absolute; will-change: transform;
+        }
+        
+        @keyframes ether-float {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            33% { transform: translate(5%, 8%) scale(1.1) rotate(5deg); }
+            66% { transform: translate(-5%, 5%) scale(0.9) rotate(-5deg); }
+            100% { transform: translate(8%, -5%) scale(1.05) rotate(0deg); }
+        }
+
+        a { color: var(--primary-color); text-decoration: none; transition: color var(--transition-fast); }
+        a:hover { color: #A5B4FC; text-decoration: underline; text-underline-offset: 4px; }
+        code { font-family: var(--font-mono); background-color: var(--primary-light); color: #A5B4FC; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.85em; }
+
+        .container { max-width: 900px; margin: 0 auto; padding-left: 1.5rem; padding-right: 1.5rem; position: relative; z-index: 1; }
+
+        /* 毛玻璃导航栏 */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; height: 64px; 
+            background-color: rgba(10, 10, 15, 0.4);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            border-bottom: var(--glass-border); z-index: 1000;
+        }
+        .navbar .container { display: flex; align-items: center; justify-content: space-between; height: 100%; }
+        .nav-brand { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; letter-spacing: -0.02em; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-link { color: var(--text-secondary); font-weight: 500; font-size: 0.9rem; cursor: pointer; }
+        .nav-link:hover { color: var(--text-main); text-decoration: none;}
+        .icon-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 0.5rem; border-radius: var(--radius-md); display: flex; align-items: center; transition: all var(--transition-fast); }
+        .icon-btn:hover { background-color: var(--primary-light); color: var(--text-main); transform: scale(1.1); }
+
+        main.container { padding-top: 120px; padding-bottom: 4rem; }
+
+        .reveal-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.8s var(--spring-easing), transform 0.8s var(--spring-easing); will-change: opacity, transform; }
+        .reveal-on-scroll.revealed { opacity: 1; transform: translateY(0); }
+
+        /* 基础底层玻璃卡片 */
+        .glass-card {
+            background-color: var(--surface-color);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--glass-inset), var(--glass-shadow);
+        }
+
+        /* 优化4：高层交互弹窗景深映射 */
+        .glass-modal {
+            background-color: var(--surface-modal);
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: var(--glass-border-heavy);
+            box-shadow: var(--glass-shadow-heavy), var(--glass-inset);
+            border-radius: var(--radius-lg);
+        }
+
+        /* Hero区 */
+        .hero { text-align: left; margin-bottom: 4rem; padding: 3rem 0 1rem; position: relative; }
+        .hero-meta { display: flex; align-items: center; gap: 1rem; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.05em; margin-bottom: 1.5rem; color: var(--text-secondary); text-transform: uppercase; flex-wrap: wrap; }
+        .hero-meta .tag-dark { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); color: #fff; padding: 0.3rem 0.6rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
+        .hero-meta .tag-dark .dot-green { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981; }
+        .hero-version { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.4em; color: var(--text-muted); margin-bottom: 2.5rem; text-transform: uppercase; }
+        
+        .hero-main { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 2rem; position: relative; }
+        .hero-title-group { display: flex; flex-direction: column; position: relative; z-index: 2; }
+        
+        /* 优化1：瀑布流字体层级 & 背景英文大底纹 */
+        .hero-name { font-size: 6.5rem; font-weight: 900; line-height: 1; letter-spacing: -0.04em; color: var(--text-main); display: flex; align-items: baseline; margin-left: -0.04em; text-shadow: 0 4px 20px rgba(0,0,0,0.5); position: relative; }
+        .hero-name .dot-orange { color: #f97316; font-size: 7rem; line-height: 0.1; margin-left: 0.05em; text-shadow: 0 0 30px rgba(249, 115, 22, 0.6);}
+        .hero-bg-text {
+            position: absolute; top: 60%; left: -2%; transform: translateY(-50%);
+            font-size: 7rem; font-weight: 900; white-space: nowrap; z-index: -1;
+            color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.06);
+            pointer-events: none; user-select: none; font-family: 'Arial Black', Impact, sans-serif;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-slogan-img { font-size: 2.2rem; font-weight: 800; color: var(--text-secondary); letter-spacing: -0.02em; margin-top: 1.5rem; }
+        
+        .hero-avatar { width: 140px; height: 140px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 12px 35px rgba(0,0,0,0.3); object-fit: cover; flex-shrink: 0; background: var(--primary-light); backdrop-filter: blur(10px); position: relative; z-index: 2; }
+        
+        .hero-intro-text { font-size: 1.15rem; color: #cbd5e1; max-width: 750px; line-height: 1.8; margin-bottom: 2.5rem; position: relative; z-index: 2; }
+        .hero-intro-text strong { color: #fff; font-weight: 700; background: rgba(255,255,255,0.1); padding: 0 4px; border-radius: 4px; }
+        
+        .hero-contact { display: flex; justify-content: flex-start; gap: 1rem; flex-wrap: wrap; }
+        .contact-pill {
+            display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem;
+            background: rgba(255,255,255,0.05); border: var(--glass-border); backdrop-filter: blur(10px);
+            border-radius: 99px; font-size: 0.9rem; color: #fff; font-family: var(--font-mono);
+            box-shadow: var(--glass-shadow); transition: all 0.3s var(--spring-easing); cursor: pointer;
+        }
+        .contact-pill:hover { background: rgba(255,255,255,0.15); transform: translateY(-4px); border-color: rgba(255,255,255,0.3); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
+        /* 优化5：打破网格的身份卡片 */
+        .identities-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 3rem; margin-bottom: 4rem; }
+        .identity-card { padding: 3.5rem 1.5rem 2rem; text-align: center; transition: all var(--transition-normal); position: relative; cursor: pointer; overflow: visible; }
+        .identity-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, transparent, #FF9FFC, transparent); opacity: 0; transition: opacity 0.3s; border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg); }
+        .identity-card:hover { transform: translateY(-8px); background-color: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .identity-card:hover::before { opacity: 1; }
+        
+        .identity-icon-wrapper { 
+            position: absolute; top: -2.5rem; left: 50%; transform: translateX(-50%);
+            background: rgba(15, 15, 25, 0.8); border: var(--glass-border-heavy);
+            border-radius: 50%; padding: 1.2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            backdrop-filter: blur(12px); z-index: 2; display: flex; align-items: center; justify-content: center;
+        }
+        .identity-icon { font-size: 2.5rem; transition: transform 0.4s var(--spring-easing); filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3)); line-height: 1; }
+        .identity-card:hover .identity-icon { transform: scale(1.25) rotate(-5deg); }
+        
+        .identity-preview-tooltip {
+            position: absolute; bottom: calc(100% + 15px); left: 50%; transform: translateX(-50%) translateY(10px) scale(0.95);
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.85rem; opacity: 0; visibility: hidden; 
+            transition: all 0.3s var(--spring-easing); width: max-content; max-width: 220px; white-space: normal; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); pointer-events: none; z-index: 20; line-height: 1.4;
+        }
+        .identity-preview-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border-width: 6px; border-style: solid; border-color: rgba(0,0,0,0.9) transparent transparent transparent; }
+        .identity-icon-wrapper:hover .identity-preview-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0) scale(1); }
+
+        .identity-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff; }
+        .identity-card p { font-size: 0.95rem; color: #cbd5e1; line-height: 1.5; }
+        .click-hint { margin-top: 1.5rem; font-size: 0.85rem; color: #FF9FFC; font-weight: 700; opacity: 0; transform: translateY(10px); transition: all 0.3s var(--spring-easing); font-family: var(--font-mono);}
+        .identity-card:hover .click-hint { opacity: 1; transform: translateY(0); }
+
+        /* 标题统一样式 */
+        .section-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 2rem; letter-spacing: -0.02em; display: flex; align-items: center; gap: 0.8rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5);}
+        .section-title::before { content: ''; display: block; width: 6px; height: 24px; background: linear-gradient(to bottom, #FF9FFC, #5227FF); border-radius: 4px; box-shadow: 0 0 10px #5227FF;}
+
+        /* 优化2：释放卡片的“内呼吸感” */
+        .section-card { padding: 2.5rem 3rem; margin-bottom: 2rem; transition: all var(--transition-normal); }
+        .section-card:hover { background-color: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.3); transform: translateY(-3px);}
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .card-title-group h3 { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+        .card-title-group h4 { font-size: 1rem; font-weight: 500; color: #B19EEF; }
+        .card-meta { text-align: right; font-size: 0.9rem; color: #94a3b8; display: flex; flex-direction: column; align-items: flex-end; gap: 0.4rem; }
+        
+        .card-body ul { list-style-type: none; padding-left: 0; }
+        .card-body li { position: relative; padding-left: 1.5rem; margin-bottom: 0.8rem; color: #cbd5e1; font-size: 1rem; line-height: 1.7; }
+        .card-body li::before { content: '—'; position: absolute; left: 0; color: #B19EEF; font-weight: bold; }
+        .card-body strong { color: #fff; font-weight: 600; }
+
+        /* 优化5：打破网格的作品集 */
+        .portfolio-section { margin-bottom: 5rem; }
+        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; padding-top: 1rem;}
+        .portfolio-card { overflow: visible; cursor: pointer; transition: all var(--transition-normal); display: flex; flex-direction: column; position: relative;}
+        .portfolio-card:hover { background-color: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.3); }
+        .portfolio-thumb { margin: -1.5rem -1.5rem 1rem -1.5rem; height: 160px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 4rem; position: relative; overflow: hidden; color: rgba(255,255,255,0.9); box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.5s var(--spring-easing), box-shadow 0.5s var(--spring-easing); z-index: 2;}
+        .portfolio-thumb::after { content: '▶ 实时体验'; position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.1em; opacity: 0; transition: opacity 0.3s ease; }
+        .portfolio-card:hover .portfolio-thumb { transform: scale(1.06) translateY(-15px); box-shadow: 0 20px 40px rgba(0,0,0,0.5); z-index: 3;}
+        .portfolio-card:hover .portfolio-thumb::after { opacity: 1; }
+        
+        .portfolio-info { padding: 0.5rem 0 0 0; flex: 1; display: flex; flex-direction: column;}
+        .portfolio-info h3 { font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+        .portfolio-info p { font-size: 0.9rem; color: #cbd5e1; line-height: 1.6; margin-bottom: 1.5rem; flex: 1; }
+        
+        .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: auto; }
+        /* 优化8：标签流光扫过特效 */
+        .badge { background-color: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 0.3rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-family: var(--font-mono); backdrop-filter: blur(5px); position: relative; overflow: hidden; }
+        .badge::after { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent); transform: skewX(-20deg); transition: 0s; }
+        .portfolio-card:hover .badge::after { left: 200%; transition: left 0.8s ease-in-out; }
+
+        /* Tabs */
+        .tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); gap: 3rem; margin-bottom: 2rem; overflow-x: auto; scrollbar-width: none; }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-btn { background: none; border: none; padding: 0.5rem 0 1rem 0; font-size: 1.15rem; font-weight: 600; color: #94a3b8; cursor: pointer; position: relative; transition: color var(--transition-fast); white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .tab-btn:hover { color: #fff; }
+        .tab-btn[aria-selected="true"] { color: #FF9FFC; }
+        .tab-btn[aria-selected="true"]::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; border-radius: 3px 3px 0 0; background-color: #FF9FFC; box-shadow: 0 0 12px #FF9FFC;}
+        .tab-content { display: none; animation: fadeIn 0.5s var(--spring-easing); }
+        .tab-content.active { display: block; }
+
+        /* 技能矩阵 */
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2.5rem; }
+        .skill-group h4 { font-size: 1.05rem; margin-bottom: 1.5rem; color: #fff; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;}
+        .progress-bar { margin-bottom: 1.2rem; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.4rem; color: #e2e8f0; font-weight: 600;}
+        .progress-num { color: #FF9FFC; }
+        .progress-track { height: 8px; background-color: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; position: relative;}
+        .progress-fill { height: 100%; width: 0%; border-radius: 4px; background: linear-gradient(90deg, #5227FF, #FF9FFC); box-shadow: 0 0 10px #FF9FFC; transition: width 1s cubic-bezier(0.16, 1, 0.3, 1); }
+
+        /* 弹窗通用玻璃态 */
+        .toast { position: fixed; bottom: -60px; left: 50%; transform: translateX(-50%); background-color: rgba(255,255,255,0.95); color: #000; padding: 0.8rem 2rem; border-radius: 30px; font-size: 0.95rem; font-weight: 700; opacity: 0; visibility: hidden; z-index: 4000; box-shadow: 0 15px 35px rgba(0,0,0,0.4); transition: all 0.5s var(--spring-easing); display: flex; align-items: center; gap: 0.6rem; backdrop-filter: blur(10px); }
+        .toast.show { bottom: 40px; opacity: 1; visibility: visible; }
+        .demo-modal { position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,0.6); backdrop-filter: blur(20px); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.4s; padding: 2rem; }
+        .demo-modal.active { opacity: 1; visibility: visible; }
+        
+        .modal-content { width: 100%; max-width: 1200px; height: 100%; max-height: 85vh; overflow: hidden; position: relative; display: flex; flex-direction: column; transform: scale(0.9) translateY(20px); transition: transform 0.5s var(--spring-easing); }
+        .demo-modal.active .modal-content { transform: scale(1) translateY(0); }
+        
+        .modal-header { padding: 1.2rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: rgba(255,255,255,0.1); z-index: 10; background: rgba(10,10,15,0.6); }
+        .modal-header h3 { font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; color:#fff;}
+        .close-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s var(--spring-easing); }
+        .close-btn:hover { background: #ef4444; border-color: #ef4444; transform: scale(1.1) rotate(90deg); }
+        
+        .modal-body { flex: 1; position: relative; overflow-y: auto; background: rgba(10,10,15,0.4); }
+        .modal-body.iframe-body { padding: 0; background: #000; overflow: hidden; }
+        .modal-body iframe { width: 100%; height: 100%; border: none; display: block; }
+        
+        .details-markdown { font-size: 1rem; color: #cbd5e1; line-height: 1.8; }
+        .details-markdown h4 { color: #fff; font-size: 1.2rem; margin: 2rem 0 1rem; }
+        .details-markdown ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+        .details-markdown li { margin-bottom: 0.6rem; }
+        
+        /* 优化10：AI 助手的空间折叠展开 (Clip-Path Reveal) */
+        .ai-chat-btn { position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #5227FF, #FF9FFC); color: white; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.3); cursor: pointer; box-shadow: 0 10px 25px rgba(82, 39, 255, 0.5); z-index: 1500; transition: transform 0.4s var(--spring-easing); }
+        .ai-chat-btn:hover { transform: scale(1.15) rotate(-10deg); box-shadow: 0 15px 35px rgba(255, 159, 252, 0.6);}
+        
+        .ai-chat-window { 
+            position: fixed; bottom: 6.5rem; right: 2rem; width: 360px; height: 500px; z-index: 1500; display: flex; flex-direction: column; 
+            clip-path: circle(0px at calc(100% - 30px) calc(100% + 3rem + 30px)); /* 从底部按钮中心开始收缩 */
+            opacity: 0; transition: clip-path 0.6s var(--spring-easing), opacity 0.4s;
+        }
+        .ai-chat-window.active { 
+            clip-path: circle(150% at calc(100% - 30px) calc(100% + 3rem + 30px)); /* 展开包围整个窗口 */
+            opacity: 1; pointer-events: auto;
+        }
+
+        .chat-header { padding: 1.2rem; background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.1); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .chat-actions { display: flex; gap: 0.5rem; }
+        .chat-action-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;}
+        .chat-action-btn:hover { background: #FF9FFC; border-color: #FF9FFC; color: #000;}
+        .chat-messages { flex: 1; overflow-y: auto; padding: 1.2rem; display: flex; flex-direction: column; gap: 1.2rem; background: rgba(10,10,15,0.4); }
+        .chat-msg { max-width: 85%; }
+        .chat-msg.model { align-self: flex-start; }
+        .chat-msg.user { align-self: flex-end; }
+        .chat-bubble { padding: 0.8rem 1rem; border-radius: 1rem; font-size: 0.95rem; line-height: 1.6; backdrop-filter: blur(10px); }
+        .chat-msg.model .chat-bubble { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-bottom-left-radius: 0.2rem; }
+        .chat-msg.user .chat-bubble { background: linear-gradient(135deg, #5227FF, #B19EEF); border: 1px solid rgba(255,255,255,0.2); color: white; border-bottom-right-radius: 0.2rem; }
+        .chat-input-area { padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 0.8rem; background: rgba(0,0,0,0.5); }
+        .chat-input { flex: 1; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; border-radius: 99px; padding: 0.6rem 1.2rem; outline: none; transition: all 0.3s;}
+        .chat-input:focus { border-color: #FF9FFC; background: rgba(255,255,255,0.15); box-shadow: 0 0 15px rgba(255,159,252,0.2);}
+        .chat-send-btn { background: #5227FF; color: white; border: 1px solid rgba(255,255,255,0.3); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s var(--spring-easing);}
+        .chat-send-btn:hover { transform: scale(1.1) rotate(15deg); background: #FF9FFC; }
+        
+        footer { text-align: center; padding: 4rem 0 3rem; color: rgba(255,255,255,0.4); font-size: 0.85rem; font-family: var(--font-mono); margin-top: 3rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+            .splash-title { font-size: 3.5rem; }
+            .splash-subtitle { font-size: 0.7rem; letter-spacing: 0.2em; }
+            .enter-btn { padding: 1rem 2.5rem; font-size: 0.9rem; }
+            
+            .hero { padding: 1.5rem 0; }
+            .hero-bg-text { font-size: 4rem; top: 50%; }
+            .hero-name { font-size: 4.5rem; }
+            .hero-name .dot-orange { font-size: 5rem; }
+            .hero-slogan-img { font-size: 1.6rem; }
+            .hero-avatar { width: 100px; height: 100px; border-width: 3px; }
+            .hero-main { align-items: flex-start; gap: 1rem; }
+            
+            .section-card { padding: 1.5rem; }
+            .identities-grid { gap: 3rem; }
+            
+            .demo-modal { padding: 0; }
+            .modal-content { max-height: 100dvh; border-radius: 0; border: none; }
+            .ai-chat-btn { bottom: 1.5rem; right: 1.5rem; }
+            .ai-chat-window { 
+                bottom: 0; right: 0; width: 100%; height: 100dvh; border-radius: 0; z-index: 4000; 
+                clip-path: circle(0px at calc(100% - 40px) calc(100% - 40px));
+            }
+            .ai-chat-window.active { clip-path: circle(150% at calc(100% - 40px) calc(100% - 40px)); }
+        }
+        
+        @media print {
+            body { background: white; color: black; }
+            .splash-screen, .liquid-ether-bg, .navbar, .ai-chat-btn, .ai-chat-window, .portfolio-thumb::after, .click-hint, .identity-preview-tooltip, .hero-bg-text { display: none !important; }
+            .app-wrapper { opacity: 1 !important; transform: none !important; filter: none !important; pointer-events: auto !important;}
+            main.container { padding-top: 0; }
+            .hero { padding: 0; margin-bottom: 2rem; }
+            .glass-card, .identity-card, .section-card, .portfolio-card { background: none!important; box-shadow: none !important; border: 1px solid #ccc !important; page-break-inside: avoid; color: black!important; padding: 1.5rem!important; margin-top: 1rem;}
+            h1, h2, h3, h4, p, li, strong { color: black !important; text-shadow: none!important;}
+            .font-mono { font-family: monospace!important;}
+            .tab-content { display: block !important; opacity: 1 !important; }
+            .tabs { display: none; }
+            #tab-exp::before { content: "经历与项目"; font-size: 1.5rem; font-weight: bold; margin: 1rem 0; display: block;}
+        }
+    </style>
+</head>
+<body class="locked">
+
+    <!-- ================= 炫酷进场界面 ================= -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-content">
+            <div class="sys-text-container">
+                <span class="sys-text" id="sysText"></span><span class="typing-cursor"></span>
+            </div>
+            <h1 class="splash-title">翟士源<span style="color:#f97316;">.</span></h1>
+            <p class="splash-subtitle">SOFTWARE ENGINEER & AI DEVELOPER</p>
+            <button id="enterBtn" class="enter-btn">ENTER SYSTEM</button>
+        </div>
+    </div>
+
+    <!-- 优化7：赋予情绪的流体背景 (添加基于滚动的动态缩放) -->
+    <div class="liquid-ether-bg" id="etherBg">
+        <div class="ether-blob blob-1"></div>
+        <div class="ether-blob blob-2"></div>
+        <div class="ether-blob blob-3"></div>
+        <div class="blob-cursor"></div>
+    </div>
+
+    <!-- 图标库 -->
+    <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <symbol id="icon-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></symbol>
+            <symbol id="icon-wechat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></symbol>
+            <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></symbol>
+            <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></symbol>
+            <symbol id="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
+            <symbol id="icon-bot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="2"></circle><path d="M12 7v4"></path><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></symbol>
+            <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></symbol>
+        </defs>
+    </svg>
+
+    <!-- ================= 网站正文内容 ================= -->
+    <div id="appWrapper" class="app-wrapper">
+        <nav class="navbar">
+            <div class="container">
+                <div class="nav-brand">翟士源<span style="color:#10b981;">.</span></div>
+                <div class="nav-links">
+                    <a class="nav-link font-mono" href="#about">01.HOME</a>
+                    <a class="nav-link font-mono" href="#portfolio">02.WORK</a>
+                    <a class="nav-link font-mono" href="#experience">03.EXPERIENCE</a>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container" id="app"></main>
+
+        <div id="toast" class="toast" role="alert"><svg width="18" height="18"><use href="#icon-check"></use></svg><span id="toast-msg"></span></div>
+
+        <!-- 交互式应用弹窗 -->
+        <div class="demo-modal" id="demoModal" role="dialog">
+            <div class="modal-content glass-modal">
+                <div class="modal-header">
+                    <h3 id="modalTitle" class="font-mono">LIVE PREVIEW</h3>
+                    <button class="close-btn" onclick="closeDemo()"><svg width="20" height="20"><use href="#icon-close"></use></svg></button>
+                </div>
+                <div class="modal-body iframe-body"><iframe id="demoIframe"></iframe></div>
+            </div>
+        </div>
+
+        <!-- 身份详情弹窗 -->
+        <div class="demo-modal" id="identityModal" role="dialog">
+            <div class="modal-content glass-modal" style="max-width: 650px; height: auto; max-height: 80vh;">
+                <div class="modal-header">
+                    <h3 id="identityModalTitle" class="font-mono">DETAILS</h3>
+                    <button class="close-btn" onclick="closeIdentity()"><svg width="20" height="20"><use href="#icon-close"></use></svg></button>
+                </div>
+                <div class="modal-body" style="padding: 3rem 2.5rem;">
+                    <div id="identityModalIcon" style="font-size: 5rem; text-align: center; margin-bottom: 1.5rem; filter: drop-shadow(0 10px 20px rgba(255,255,255,0.15));"></div>
+                    <div id="identityModalContent" class="details-markdown"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 沟通记录导出弹窗 -->
+        <div class="demo-modal" id="chatHistoryModal" role="dialog">
+            <div class="modal-content glass-modal" style="max-width: 650px; height: 75vh;">
+                <div class="modal-header">
+                    <h3 class="font-mono"><svg width="20" height="20" style="margin-right: 8px;"><use href="#icon-mail"></use></svg> EXPORT_LOGS</h3>
+                    <button class="close-btn" onclick="closeChatHistory()"><svg width="20" height="20"><use href="#icon-close"></use></svg></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem; display: flex; flex-direction: column;">
+                    <textarea id="chatHistoryText" class="font-mono" style="flex: 1; padding: 1.5rem; border-radius: var(--radius-md); border: var(--glass-border-heavy); background: rgba(0,0,0,0.4); color: #fff; resize: none; outline: none; line-height: 1.8;" readonly></textarea>
+                    <button id="copyAndSendBtn" style="margin-top: 1.5rem; background: linear-gradient(135deg, #5227FF, #FF9FFC); color: white; border: none; padding: 1.2rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1.05rem; cursor: pointer; box-shadow: 0 10px 25px rgba(82, 39, 255, 0.4); transition: transform 0.3s var(--spring-easing);" onclick="sendMailtoWithClipboard()">复制记录 并拉起邮箱客户端</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI 助手 -->
+        <button class="ai-chat-btn" id="aiChatToggle"><svg width="26" height="26"><use href="#icon-bot"></use></svg></button>
+        <div class="ai-chat-window glass-modal" id="aiChatWindow">
+            <div class="chat-header">
+                <span style="font-weight:700; display:flex; align-items:center; gap:8px; font-family: var(--font-mono); letter-spacing: 0.05em;"><svg width="18" height="18"><use href="#icon-bot"></use></svg> AI_AGENT</span>
+                <div class="chat-actions">
+                    <button class="chat-action-btn" onclick="exportChatToEmail()"><svg width="14" height="14"><use href="#icon-mail"></use></svg></button>
+                    <button class="chat-action-btn" onclick="toggleChat()"><svg width="16" height="16"><use href="#icon-close"></use></svg></button>
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-msg model"><div class="chat-bubble">您好！我是翟士源的数字分身。关于他的经历和技术栈，欢迎向我提问。</div></div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" class="chat-input" placeholder="Enter your message..." autocomplete="off">
+                <button class="chat-send-btn" id="chatSendBtn"><svg width="18" height="18"><use href="#icon-send"></use></svg></button>
+            </div>
+        </div>
+
+        <footer>
+            <div class="container">
+                <p>&copy; <span id="currentYear" class="font-mono"></span> 翟士源. 保持热爱，保持纯粹。</p>
+            </div>
+        </footer>
+    </div>
+    <!-- ================= 网站正文内容结束 ================= -->
+
+    <script>
+        // ================= 优化9：真实的终端打字机逻辑 =================
+        const sysTextEl = document.getElementById('sysText');
+        const textToType = "SYSTEM.INITIALIZING // PORTFOLIO_V1.0";
+        let typeIndex = 0;
+        
+        function typeWriter() {
+            if (typeIndex < textToType.length) {
+                sysTextEl.textContent += textToType.charAt(typeIndex);
+                typeIndex++;
+                setTimeout(typeWriter, 50); // 打字速度
+            } else {
+                // 打字结束时才添加闪烁光标
+                document.querySelector('.typing-cursor').classList.add('blinking');
+            }
+        }
+        setTimeout(typeWriter, 500);
+
+        const enterBtn = document.getElementById('enterBtn');
+        const splashScreen = document.getElementById('splashScreen');
+        const appWrapper = document.getElementById('appWrapper');
+
+        enterBtn.addEventListener('click', () => {
+            splashScreen.classList.add('hidden');
+            setTimeout(() => {
+                splashScreen.style.display = 'none';
+                appWrapper.classList.add('ready');
+                document.body.classList.remove('locked');
+                setTimeout(() => ScrollReveal.checkVisibility(), 200);
+            }, 800);
+        });
+
+        // ================= 优化7：赋予流体呼吸与滚动视差 =================
+        const blobCursor = document.querySelector('.blob-cursor');
+        const etherBg = document.getElementById('etherBg');
+        let targetX = window.innerWidth / 2;
+        let targetY = window.innerHeight / 2;
+        let currentX = targetX;
+        let currentY = targetY;
+        
+        // 滚动速度变量
+        let lastScrollY = window.scrollY;
+        let scrollVelocity = 0;
+        let smoothedVelocity = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            targetX = e.clientX;
+            targetY = e.clientY;
+        });
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            scrollVelocity = currentScrollY - lastScrollY;
+            lastScrollY = currentScrollY;
+        });
+
+        function animateBlob() {
+            // 鼠标跟随物理插值
+            currentX += (targetX - currentX) * 0.4;
+            currentY += (targetY - currentY) * 0.4;
+            if (blobCursor) {
+                blobCursor.style.transform = `translate3d(calc(${currentX}px - 50%), calc(${currentY}px - 50%), 0)`;
+            }
+
+            // 流体背景情绪律动 (Ether Breathing)
+            smoothedVelocity += (Math.abs(scrollVelocity) - smoothedVelocity) * 0.1;
+            scrollVelocity *= 0.9; // 速度衰减
+            
+            if (etherBg) {
+                // 基础缩放1，加上基于滚动速度的拉伸，再加上基于时间的缓慢呼吸
+                const speedScale = Math.min(smoothedVelocity * 0.001, 0.05);
+                const timeBreath = Math.sin(Date.now() * 0.001) * 0.03; 
+                etherBg.style.transform = `scale(${1 + speedScale + timeBreath})`;
+            }
+
+            requestAnimationFrame(animateBlob);
+        }
+        animateBlob();
+
+        // ========= 数据层 =========
+        const resumeData = {
+            basics: {
+                name: "翟士源",
+                slogan: "探索技术边界。保持热爱纯粹。",
+                intro: "浙江工业大学 **大一新生**，也是一个对 AI 应用充满热情的 **软件工程开发者**。我正在利用底层代码逻辑与大语言模型，探索新媒体矩阵与全栈交互体系的极限。",
+                email: "2102316026@qq.com",
+                wechat: "Zsy07-0108"
+            },
+            identities: [
+                { 
+                    icon: "💻", 
+                    title: "软件工程师", 
+                    desc: "主攻 C/C++ 与前端交互架构，追求极致的代码性能与用户体验。",
+                    preview: "PREVIEW: 熟练掌握现代前端栈，正涉猎底层架构...",
+                    details: "【详细内容待补充】<br><br>计划展示内容方向：<br><ul><li>GitHub 开源贡献链接与分析</li><li>核心架构设计思路与源码剖析</li><li>技术栈演进历程（从C/C++到Web前端）</li></ul>"
+                },
+                { 
+                    icon: "🤖", 
+                    title: "AI 应用开发者", 
+                    desc: "精通 Prompt 调优与智能体开发，擅长用大模型解决实际业务痛点。",
+                    preview: "PREVIEW: 拥有阿里云大模型等多项企业级认证...",
+                    details: "【详细内容待补充】<br><br>计划展示内容方向：<br><ul><li>百炼平台智能体实战演示图</li><li>RAG（检索增强生成）应用架构图</li><li>大模型赋能内容生产的具体效能提升数据</li></ul>"
+                },
+                { 
+                    icon: "📱", 
+                    title: "新媒体主理人", 
+                    desc: "拥有单条 10W+ 爆款视频操盘经验，深谙流量密码与私域转化逻辑。",
+                    preview: "PREVIEW: 实现2个月内精准涨粉650+，高频爆款制造者...",
+                    details: "【详细内容待补充】<br><br>计划展示内容方向：<br><ul><li>小红书/视频号的核心账号数据看板截图</li><li>10W+ 爆款视频的拆解与SOP复盘</li><li>“公域-私域”高效引流漏斗模型解析</li></ul>"
+                }
+            ],
+            education: {
+                school: "浙江工业大学", degree: "本科 | 软件工程专业", date: "2025.09 — 2029.06",
+                courses: "主修课程：C++程序设计、数据结构与算法、高等数学等。"
+            },
+            portfolio: [
+                {
+                    name: "星云核心 · 手势宇宙", tags: ["Three.js", "MediaPipe"], thumb: "🌌", bg: "linear-gradient(135deg, rgba(15,23,42,0.8), rgba(59,130,246,0.5))", url: "index_optimized(1).html",
+                    desc: "无需穿戴设备的沉浸式交互体验。基于 MediaPipe 识别手势，实时操控 3D 粒子宇宙。"
+                },
+                {
+                    name: "Fruitwarp · 手势切水果", tags: ["Canvas", "体感交互"], thumb: "🍉", bg: "linear-gradient(135deg, rgba(6,78,59,0.8), rgba(16,185,129,0.5))", url: "aaa.html",
+                    desc: "经典游戏浏览器重制。支持双刀流实时手势追踪，内置光剑特效与连击系统。"
+                },
+                {
+                    name: "Neon Striker (霓虹战机)", tags: ["原生 JS", "Web Audio"], thumb: "✈️", bg: "linear-gradient(135deg, rgba(76,29,149,0.8), rgba(236,72,153,0.5))", url: "index.html", 
+                    desc: "复古弹幕射击游戏。自研轻量级游戏循环，音效全由 Web Audio 动态合成生成。"
+                }
+            ],
+            experience: [
+                {
+                    company: "个人自媒体博主", role: "AI领域创作者", date: "2026.01 — 至今",
+                    duties: [
+                        "**精准定位**：聚焦 AI 工具实操与大学信息差，**独立产出 22 篇高质笔记**。",
+                        "**效率革命**：运用 Gemini 生成文案 + Canva 视觉排版，实现内容工业化量产。",
+                        "**数据结果**：单篇最高 **1.2万+ 阅读**，2个月实现**精准涨粉 650+**，获赞藏 2800+。"
+                    ]
+                },
+                {
+                    company: "浪尖教育科技", role: "视频号运营操盘", date: "2025.10 — 至今",
+                    duties: [
+                        "**数据调优**：依托蝉妈妈分析漏斗数据，优化前3秒切入点，**平均播放提升 27%**。",
+                        "**爆款打造**：策划“信息差”系列商业视频，打造 **10w+ 播放**的现象级标杆。",
+                        "**流程标准化**：跨部门协同搭建 SOP，保障账号稳定高质量双更。"
+                    ]
+                },
+                {
+                    company: "四川华予星辰", role: "营销增长", date: "2026.01 — 至今",
+                    duties: [
+                        "**降维输出**：将硬核的软硬件参数转化为通俗测评，累计发布高转化视频 25+ 条。",
+                        "**私域转化**：跑通获客闭环，成功引流 **300+** 高意向客源至私域，单条最高播放 8w+。"
+                    ]
+                }
+            ],
+            projects: [
+                {
+                    name: "智慧农业物联网系统", role: "核心开发", date: "2026.03 — 2026.04",
+                    duties: [
+                        "**软硬协同**：基于 OpenHarmony 底座，开发温湿度等参数的实时可视化监控模块。",
+                        "**商业架构**：统筹市场调研与模式设计，主导重构高质感路演商业计划书（服创赛）。"
+                    ]
+                },
+                {
+                    name: "AI 效能工具课程研发", role: "课程主理人", date: "2026.01 — 至今",
+                    duties: [
+                        "**体系搭建**：自研《AI与Obsidian高效学习指南》体系课，抹平下沉市场数字化信息差。",
+                        "**知识管理**：将复杂的 Prompt 策略与双链逻辑抽象为初学者可复制的 SOP。"
+                    ]
+                }
+            ],
+            skills: [
+                { name: "C / C++ & 前端架构", level: 82 },
+                { name: "大语言模型 (Gemini/Prompt)", level: 95 },
+                { name: "新媒体数据分析运营", level: 88 },
+                { name: "内容视觉与视频剪辑", level: 85 }
+            ],
+            awards: [
+                "RST国际先进机器人及仿生智能大赛全国三等奖",
+                "阿里云大模型 Clouder 认证（百炼平台智能体构建）",
+                "Datawhale & 豆包 MarsCode 联合 AI+编程能力认证"
+            ]
+        };
+
+        // 渲染核心
+        function renderResume() {
+            const app = document.getElementById('app');
+            let html = '';
+
+            html += `
+                <section class="hero reveal-on-scroll" id="about">
+                    <div class="hero-meta">
+                        <div class="tag-dark"><div class="dot-green"></div> IDENTITY: FRESHMAN_V1.0</div>
+                        <div>|</div>
+                        <div>INTEREST: AI_PROGRAMMING</div>
+                    </div>
+                    <div class="hero-version">P O R T F O L I O &nbsp; // &nbsp; V E R S I O N _ 1 . 0</div>
+
+                    <div class="hero-main">
+                        <div class="hero-title-group">
+                            <div class="hero-name">${resumeData.basics.name}<span class="dot-orange">.</span></div>
+                            <!-- 优化1：瀑布流英文大底纹 -->
+                            <div class="hero-bg-text">SOFTWARE & AI DEVELOPER</div>
+                            <div class="hero-slogan-img">${resumeData.basics.slogan}</div>
+                        </div>
+                        <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Zsy&backgroundColor=e0e7ff" alt="头像" class="hero-avatar" />
+                    </div>
+
+                    <p class="hero-intro-text">${parseMarkdown(resumeData.basics.intro)}</p>
+
+                    <div class="hero-contact">
+                        <div class="contact-pill" onclick="copyText('${resumeData.basics.email}', '邮箱已复制')"><svg><use href="#icon-mail"></use></svg> ${resumeData.basics.email}</div>
+                        <div class="contact-pill" onclick="copyText('${resumeData.basics.wechat}', '微信已复制')"><svg><use href="#icon-wechat"></use></svg> ${resumeData.basics.wechat}</div>
+                    </div>
+                </section>
+            `;
+
+            html += `<section class="identities-grid reveal-on-scroll">`;
+            resumeData.identities.forEach((id, idx) => {
+                html += `
+                    <div class="identity-card glass-card" onclick="openIdentity(${idx})">
+                        <div class="identity-icon-wrapper">
+                            <div class="identity-icon">${id.icon}</div>
+                            <div class="identity-preview-tooltip font-mono">${id.preview}</div>
+                        </div>
+                        <h3>${id.title}</h3>
+                        <p>${id.desc}</p>
+                        <div class="click-hint">EXPLORE DETAILS &rarr;</div>
+                    </div>
+                `;
+            });
+            html += `</section>`;
+
+            html += `
+                <section class="reveal-on-scroll" style="margin-bottom: 4rem;">
+                    <h2 class="section-title">教育与荣誉</h2>
+                    <div class="section-card glass-card">
+                        <div class="card-header">
+                            <div class="card-title-group"><h3>${resumeData.education.school}</h3><h4>${resumeData.education.degree}</h4></div>
+                            <div class="card-meta font-mono"><span>${resumeData.education.date}</span></div>
+                        </div>
+                        <div class="card-body" style="margin-bottom: 1.5rem; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 1.5rem;">
+                            <p style="color: var(--text-secondary); font-size: 1rem;">${resumeData.education.courses}</p>
+                        </div>
+                        <div class="badges">
+                            ${resumeData.awards.map(a => `<span class="badge">${a}</span>`).join('')}
+                        </div>
+                    </div>
+                </section>
+            `;
+
+            html += `
+                <section id="portfolio" class="portfolio-section reveal-on-scroll">
+                    <h2 class="section-title">可交互作品展示</h2>
+                    <div class="portfolio-grid">
+            `;
+            resumeData.portfolio.forEach(item => {
+                html += `
+                    <div class="portfolio-card glass-card" onclick="openDemo('${item.url}', '${item.name}')">
+                        <div class="portfolio-thumb" style="background: ${item.bg};">${item.thumb}</div>
+                        <div class="portfolio-info">
+                            <h3>${item.name}</h3><p>${item.desc}</p>
+                            <div class="badges">${item.tags.map(tag => `<span class="badge">${tag}</span>`).join('')}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div></section>`;
+
+            html += `
+                <section id="experience" class="reveal-on-scroll">
+                    <h2 class="section-title">实践经历</h2>
+                    <div class="tabs" role="tablist">
+                        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-exp">实习与自媒体</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-proj">项目开发</button>
+                    </div>
+            `;
+            
+            html += `<div id="tab-exp" class="tab-content active" role="tabpanel">`;
+            resumeData.experience.forEach(exp => {
+                html += `
+                    <div class="section-card glass-card">
+                        <div class="card-header">
+                            <div class="card-title-group"><h3>${exp.company}</h3><h4>${exp.role}</h4></div>
+                            <div class="card-meta font-mono"><span>${exp.date}</span></div>
+                        </div>
+                        <div class="card-body"><ul>${exp.duties.map(d => `<li>${parseMarkdown(d)}</li>`).join('')}</ul></div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+
+            html += `<div id="tab-proj" class="tab-content" role="tabpanel">`;
+            resumeData.projects.forEach(proj => {
+                html += `
+                    <div class="section-card glass-card">
+                        <div class="card-header">
+                            <div class="card-title-group"><h3>${proj.name}</h3><h4>${proj.role}</h4></div>
+                            <div class="card-meta font-mono"><span>${proj.date}</span></div>
+                        </div>
+                        <div class="card-body"><ul>${proj.duties.map(d => `<li>${parseMarkdown(d)}</li>`).join('')}</ul></div>
+                    </div>
+                `;
+            });
+            html += `</div></section>`;
+
+            html += `
+                <section class="reveal-on-scroll" style="margin-top: 5rem;">
+                    <h2 class="section-title">核心技能</h2>
+                    <div class="section-card glass-card"><div class="skills-grid">
+            `;
+            resumeData.skills.forEach(skill => {
+                html += `
+                    <div class="progress-bar">
+                        <div class="progress-label"><span>${skill.name}</span><span class="progress-num font-mono" data-target="${skill.level}">0%</span></div>
+                        <div class="progress-track"><div class="progress-fill" style="width: 0%" data-width="${skill.level}%"></div></div>
+                    </div>
+                `;
+            });
+            html += `</div></div></section>`;
+
+            app.innerHTML = html;
+            
+            initTabs();
+        }
+
+        // ================= 工具函数 =================
+        function parseMarkdown(text) {
+            // 将数字替换为等宽字体样式 (仅匹配独立数字或带%的)
+            let parsed = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            parsed = parsed.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+            parsed = parsed.replace(/`(.*?)`/g, '<code>$1</code>');
+            parsed = parsed.replace(/([0-9]+[Ww\+%]*)/g, '<span class="font-mono" style="color:#FF9FFC;">$1</span>');
+            return parsed;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        function copyText(text, successMsg) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => showToast(successMsg));
+            } else {
+                let ta = document.createElement("textarea"); ta.value = text; 
+                document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); showToast(successMsg); } catch(e){}
+                document.body.removeChild(ta);
+            }
+        }
+
+        function initTabs() {
+            const tabs = document.querySelectorAll('[role="tab"]');
+            const panels = document.querySelectorAll('[role="tabpanel"]');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+                    panels.forEach(p => p.classList.remove('active'));
+                    tab.setAttribute('aria-selected', 'true');
+                    document.getElementById(tab.getAttribute('aria-controls')).classList.add('active');
+                    setTimeout(() => ScrollReveal.checkVisibility(), 50);
+                });
+            });
+        }
+
+        function openIdentity(index) {
+            const data = resumeData.identities[index];
+            document.getElementById('identityModalTitle').innerHTML = `${data.icon} ${data.title}`;
+            document.getElementById('identityModalIcon').innerHTML = data.icon;
+            document.getElementById('identityModalContent').innerHTML = `<h4>关于我的 ${data.title} 经历：</h4>${data.details}`;
+            
+            document.getElementById('identityModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeIdentity() {
+            document.getElementById('identityModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function openDemo(url, title) {
+            if(url === 'index.html' && window.location.pathname.endsWith('index.html')) url = 'plane_war.html'; 
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('demoModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => { document.getElementById('demoIframe').src = url; }, 100);
+        }
+        function closeDemo() {
+            document.getElementById('demoModal').classList.remove('active');
+            document.body.style.overflow = '';
+            setTimeout(() => { document.getElementById('demoIframe').src = ''; }, 300);
+        }
+
+        // ================= 滚动与动画 =================
+        const ScrollReveal = {
+            observer: new IntersectionObserver(entries => {
+                entries.forEach(e => {
+                    if(e.isIntersecting) {
+                        e.target.classList.add('revealed');
+                        if(e.target.querySelector('.progress-fill')) animateSkills();
+                        ScrollReveal.observer.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }),
+            checkVisibility() { document.querySelectorAll('.reveal-on-scroll:not(.revealed)').forEach(el => this.observer.observe(el)); }
+        };
+
+        let hasAnim = false;
+        function animateSkills() {
+            if(hasAnim) return; hasAnim = true;
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(el => el.style.width = el.getAttribute('data-width'));
+                document.querySelectorAll('.progress-num').forEach(el => {
+                    let t = parseInt(el.getAttribute('data-target')), c = 0, step = t/30;
+                    let iv = setInterval(() => {
+                        c += step;
+                        if(c >= t) { el.textContent = t + '%'; clearInterval(iv); } 
+                        else el.textContent = Math.floor(c) + '%';
+                    }, 33);
+                });
+            }, 100);
+        }
+
+        // ================= AI助手与导出 =================
+        const aiWin = document.getElementById('aiChatWindow');
+        const chatInput = document.getElementById('chatInput');
+        const chatMsgs = document.getElementById('chatMessages');
+        let chatHistory = [];
+        
+        function toggleChat() { aiWin.classList.toggle('active'); if(aiWin.classList.contains('active')) chatInput.focus(); }
+        document.getElementById('aiChatToggle').addEventListener('click', toggleChat);
+
+        function addMsg(text, isUser) {
+            const d = document.createElement('div'); d.className = `chat-msg ${isUser?'user':'model'}`;
+            if(text === 'typing') d.id = 'typing';
+            d.innerHTML = text === 'typing' 
+                ? `<div class="chat-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>` 
+                : `<div class="chat-bubble">${text}</div>`;
+            chatMsgs.appendChild(d); chatMsgs.scrollTop = chatMsgs.scrollHeight;
+        }
+
+        async function handleSend() {
+            const text = chatInput.value.trim(); if(!text) return;
+            addMsg(text, true); chatInput.value = ''; addMsg('typing', false);
+            
+            // 模拟API调用/实际接入
+            const responseText = "您好，受环境网络限制，我是离线分身。翟士源是一位精通软硬件结合与AI工具操盘的复合型人才，建议直接通过邮件联系他本人。";
+            setTimeout(() => {
+                const typ = document.getElementById('typing'); if(typ) typ.remove();
+                chatHistory.push({role:'user', text}, {role:'model', text:responseText});
+                addMsg(responseText, false);
+            }, 800);
+        }
+        document.getElementById('chatSendBtn').addEventListener('click', handleSend);
+        chatInput.addEventListener('keypress', e => { if(e.key === 'Enter') handleSend(); });
+
+        function exportChatToEmail() {
+            if(!chatHistory.length) return showToast("当前无记录");
+            let str = "沟通记录：\n\n";
+            chatHistory.forEach(m => str += `【${m.role==='user'?'面试官':'AI'}】:\n${m.text}\n\n`);
+            document.getElementById('chatHistoryText').value = str;
+            aiWin.classList.remove('active');
+            document.getElementById('chatHistoryModal').classList.add('active');
+        }
+        function closeChatHistory() { document.getElementById('chatHistoryModal').classList.remove('active'); }
+        function sendMailtoWithClipboard() {
+            copyText(document.getElementById('chatHistoryText').value, "已复制！正在拉起邮箱...");
+            const a = document.createElement('a');
+            a.href = `mailto:${resumeData.basics.email}?subject=面试沟通记录&body=记录已复制在剪贴板，请直接粘贴`;
+            a.target = '_blank'; document.body.appendChild(a); a.click(); a.remove();
+        }
+
+        function injectSchema() {
+            const schema = {
+                "@context": "https://schema.org",
+                "@type": "Person",
+                "name": resumeData.basics.name,
+                "jobTitle": "软件工程师 / AI 应用开发者",
+                "telephone": resumeData.basics.phone,
+                "email": resumeData.basics.email,
+                "description": resumeData.basics.intro,
+            };
+            const script = document.createElement('script');
+            script.type = 'application/ld+json';
+            script.text = JSON.stringify(schema);
+            document.head.appendChild(script);
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+            renderResume();
+            injectSchema();
+        });
+    </script>
+</body>
+</html>
